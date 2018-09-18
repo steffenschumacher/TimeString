@@ -2,7 +2,7 @@ import re
 import datetime
 
 class TimeString(object):
-    string_time_re = re.compile(r'(((?P<years>\d+)y)|((?P<weeks>\d+)w)|((?P<days>\d+)d)|((?P<hours>\d+)h)){2}')
+    string_time_re = re.compile(r'(((?P<years>\d+)y)|((?P<weeks>\d+)w)|((?P<days>\d+)d)|((?P<hours>\d+)h)){1,2}')
 
     @staticmethod
     def convert(value):
@@ -60,26 +60,30 @@ class TimeString(object):
             hours = TimeString.to_hours(item)
 
         val = ''
-        if (hours/8760) > 0:
-            val = '{}y'.format(hours/8760)
-            remainder_days = (hours%8760)/24
+        years = int(hours/8760)
+        weeks = int(hours/168)
+        days = int(hours/24)
+
+        if (years) > 0:
+            val = '{}y'.format(years)
+            remainder_days = int(hours%8760/24)
             if remainder_days == 0:
                 pass  # do nothing further
             elif remainder_days%7 == 0:
-                val += '{}w'.format(remainder_days/7)
+                val += '{}w'.format(int(remainder_days/7))
             else:
                 val += '{}d'.format(remainder_days)
-        elif (hours/168) > 0:
-            val = '{}w'.format(hours / 168)
+        elif (weeks) > 0:
+            val = '{}w'.format(weeks)
             remainder = (hours % 168)
             if remainder == 0:
                 pass  # do nothing further
             elif remainder % 24 == 0:
-                val += '{}d'.format(remainder)
+                val += '{}d'.format(int(remainder/24))
             else:
                 val += '{}h'.format(remainder)
-        elif (hours/24) > 0:
-            val = '{}d'.format(hours / 24)
+        elif (days) > 0:
+            val = '{}d'.format(days)
             remainder = (hours % 24)
             if remainder > 0:
                 val += '{}h'.format(remainder)
